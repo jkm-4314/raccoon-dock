@@ -6,8 +6,8 @@ cd "$DIR"
 
 gnome-extensions pack --force .
 
-cp -f "native-dock@mawi.ink.shell-extension.zip" "native-dock@mawi.ink.zip"
+cp -f "native-dock@jkm-4314.github.io.shell-extension.zip" "native-dock@jkm-4314.github.io.zip"
 
 echo "Package ready for upload to https://extensions.gnome.org/upload/:"
-echo " - native-dock@mawi.ink.shell-extension.zip"
-echo " - native-dock@mawi.ink.zip"
+echo " - native-dock@jkm-4314.github.io.shell-extension.zip"
+echo " - native-dock@jkm-4314.github.io.zip"

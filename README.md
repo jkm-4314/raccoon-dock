@@ -1,4 +1,6 @@
-# Native Dock
+# Native Dock (jkm)
+
+> This is a personal fork of [Native Dock](https://github.com/DEM0NAssissan7/native-dock) by DEM0NAssissan7 that adds a few carefully chosen options. Fixes that suit the original are contributed back upstream. For the original, zero-configuration experience, use the upstream extension.
 
 > What if GNOME Shell had an on-screen dock, designed as a first-party upstream feature?
 
@@ -30,14 +32,19 @@ Instead of reconstructing a dock from scratch or bundling third-party widget sta
 
 1. Clone or copy the repository into your GNOME Shell extensions directory:
    ```bash
-   git clone https://github.com/DEM0NAssissan7/native-dock.git ~/.local/share/gnome-shell/extensions/native-dock@mawi.ink
+   git clone -b jkm https://github.com/jkm-4314/native-dock.git ~/.local/share/gnome-shell/extensions/native-dock@jkm-4314.github.io
    ```
 
-2. Log out and log back in (required on Wayland so GNOME Shell discovers the new extension).
-
-3. Enable the extension:
+2. Compile the settings schema:
    ```bash
-   gnome-extensions enable native-dock@mawi.ink
+   glib-compile-schemas ~/.local/share/gnome-shell/extensions/native-dock@jkm-4314.github.io/schemas/
+   ```
+
+3. Log out and log back in (required on Wayland so GNOME Shell discovers the new extension).
+
+4. Enable the extension:
+   ```bash
+   gnome-extensions enable native-dock@jkm-4314.github.io
    ```
 
 ---
