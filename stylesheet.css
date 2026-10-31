@@ -1,0 +1,26 @@
+/* With magnification on, icons float over the dock instead of sitting on
+   tiles, which would show as squares once they grow above the background.
+   The ids outrank the theme's state-specific rules (hover, active, checked). */
+#native-dock-box #dash.native-dock-magnify .overview-icon {
+  background-color: transparent;
+}
+
+/* Without a visible tile, its padding only reads as a gap between icons.
+   The tile is always square, so it shrinks on every side (6px -> 3px), and
+   the button takes the height back (theme default: 0 top, 12px bottom) so
+   the dock height and icon position don't change. */
+#native-dock-box #dash.native-dock-magnify .overview-icon {
+  padding: 3px;
+}
+
+#native-dock-box #dash.native-dock-magnify .overview-tile,
+#native-dock-box #dash.native-dock-magnify .show-apps {
+  padding-top: 3px;
+  padding-bottom: 15px;
+}
+
+/* The background's height follows the show-apps tile, so give back the 6px */
+#native-dock-box #dash.native-dock-magnify .dash-background {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}

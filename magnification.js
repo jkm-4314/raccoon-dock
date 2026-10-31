@@ -10,6 +10,10 @@ const LEAVE_TIME = 200;
 // How far the effect reaches on each side of the pointer, in item widths
 const SPREAD = 2.5;
 
+// How much closer two fully magnified neighbours sit than plain scaling would
+// put them, in pixels. Partly magnified icons are pulled in proportionally.
+const MAGNIFIED_GAP_TRIM = 5;
+
 // macOS-style magnification. Icons are scaled and pushed apart with transforms
 // only, so the dash never relayouts while the pointer moves over it.
 export class MagnificationController {
@@ -62,7 +66,29 @@ export class MagnificationController {
       this,
     );
 
-    settings.connectObject("changed", () => this._end(true), this);
+    settings.connectObject(
+      "changed",
+      () => this._end(true),
+      "changed::magnification",
+      () => {
+        this._syncStyle();
+        this._updateSharpIcons();
+      },
+      "changed::magnification-size",
+      () => this._updateSharpIcons(),
+      this,
+    );
+
+    // Load icon images at the magnified size so they stay sharp when scaled
+    // up. Maps each sharpened BaseIcon to its original createIcon.
+    this._sharpIcons = new Map();
+    for (const item of this._getItems()) this._sharpen(item);
+    this._syncStyle();
+    dash._box.connectObject(
+      "child-added",
+      (_box, item) => this._sharpen(item),
+      this,
+    );
 
     // Labels are placed from the resting item, so move them above the
     // magnified icon instead
@@ -73,6 +99,42 @@ export class MagnificationController {
       if (controller._strength.value > 0 && controller._ownsItem(this))
         controller._placeLabel(this);
     };
+  }
+
+  _getRenderSize(size) {
+    if (!this._settings.get_boolean("magnification")) return size;
+    return Math.max(size, this._settings.get_int("magnification-size"));
+  }
+
+  _sharpen(item) {
+    const icon = item.child?._delegate?.icon;
+    if (!icon?.update || !Object.hasOwn(icon, "createIcon")) return;
+    if (this._sharpIcons.has(icon)) return;
+
+    const createIcon = icon.createIcon;
+    this._sharpIcons.set(icon, createIcon);
+
+    // The image is loaded at the render size, but the icon is pinned to the
+    // requested size, so the layout doesn't change
+    icon.createIcon = (size) => {
+      const renderSize = this._getRenderSize(size);
+      const texture = createIcon.call(icon, renderSize);
+      if (renderSize !== size) texture.set_size(size, size);
+      return texture;
+    };
+    icon.connectObject("destroy", () => this._sharpIcons.delete(icon), this);
+    icon.update();
+  }
+
+  // Lets stylesheet.css drop the tiles behind icons while magnifying
+  _syncStyle() {
+    if (this._settings.get_boolean("magnification"))
+      this._dash.add_style_class_name("native-dock-magnify");
+    else this._dash.remove_style_class_name("native-dock-magnify");
+  }
+
+  _updateSharpIcons() {
+    for (const icon of this._sharpIcons.keys()) icon.update();
   }
 
   _isEnabled() {
@@ -145,6 +207,7 @@ export class MagnificationController {
 
     const p = this._pointerX;
     const maxScale = Math.max(1, this._getMaxScale());
+    const trim = maxScale > 1 ? MAGNIFIED_GAP_TRIM / (maxScale - 1) : 0;
 
     // The icon box clips to its resting size, which would cut off icons
     // that grow upwards or get pushed past its ends
@@ -164,7 +227,7 @@ export class MagnificationController {
       const distance = Math.abs(p - (g.x + g.width / 2)) / reach;
       const falloff = distance < 1 ? (Math.cos(Math.PI * distance) + 1) / 2 : 0;
       g.scale = g.item.child ? 1 + (maxScale - 1) * falloff * strength : 1;
-      g.extra = g.width * (g.scale - 1);
+      g.extra = (g.width - trim) * (g.scale - 1);
       total += g.extra;
     }
 
@@ -252,6 +315,15 @@ export class MagnificationController {
     this._strength.disconnectObject(this);
     this._strength.remove_transition("value");
     this._reset(this._getItems());
+
+    this._dash._box.disconnectObject(this);
+    for (const [icon, createIcon] of this._sharpIcons) {
+      icon.disconnectObject(this);
+      icon.createIcon = createIcon;
+      icon.update();
+    }
+    this._sharpIcons.clear();
+    this._dash.remove_style_class_name("native-dock-magnify");
 
     Main.layoutManager.removeChrome(this._zone);
     this._zone.destroy();
