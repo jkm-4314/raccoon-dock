@@ -889,7 +889,14 @@ export default class NativeDockExtension extends Extension {
   }
 
   _onWindowCreated(window) {
-    if (!window || window.get_window_type() === Meta.WindowType.DESKTOP) return;
+    // Only nudge regular app windows; menus, popups, tooltips and dialogs
+    // are positioned relative to something else and must stay put.
+    if (
+      !window ||
+      window.is_override_redirect() ||
+      window.get_window_type() !== Meta.WindowType.NORMAL
+    )
+      return;
 
     const idleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
       this._idleWindowIds?.delete(idleId);
@@ -903,9 +910,7 @@ export default class NativeDockExtension extends Extension {
       )
         return GLib.SOURCE_REMOVE;
 
-      const monitor = Main.layoutManager.primaryMonitor;
-      if (!monitor || !window.is_on_primary_monitor())
-        return GLib.SOURCE_REMOVE;
+      if (!window.is_on_primary_monitor()) return GLib.SOURCE_REMOVE;
 
       const frame = window.get_frame_rect();
       if (!frame || frame.width <= 0 || frame.height <= 0)
@@ -914,8 +919,10 @@ export default class NativeDockExtension extends Extension {
       const dashRect = this._getDashRect();
       if (dashRect && this._overlapsRect(frame, dashRect)) {
         const overlap = frame.y + frame.height - dashRect.y;
-        const panelTop = monitor.y + 32;
-        if (frame.y - overlap >= panelTop) {
+        const workArea = Main.layoutManager.getWorkAreaForMonitor(
+          Main.layoutManager.primaryIndex,
+        );
+        if (frame.y - overlap >= workArea.y) {
           window.move_frame(true, frame.x, frame.y - overlap);
         } else {
           this._updateVisibility();
