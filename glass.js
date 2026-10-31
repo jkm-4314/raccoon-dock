@@ -140,21 +140,13 @@ export class GlassController {
     if (this._glass) return;
 
     const background = this._dash._background;
-    const node = background.get_theme_node();
-    const color = node.get_background_color();
-
     this._origStyle = background.get_style();
-    background.set_style(
-      `background-color: rgba(${color.red}, ${color.green}, ${color.blue}, ${TINT_ALPHA});` +
-        "box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);",
-    );
 
     // Sits right under the background, matching its box
     this._glass = new GlassActor({
       name: "raccoon-dock-glass",
       clip_to_allocation: true,
     });
-    this._glass.radius = node.get_border_radius(St.Corner.TOPLEFT);
     this._glass.add_constraint(
       new Clutter.BindConstraint({
         source: background,
@@ -168,12 +160,38 @@ export class GlassController {
       () => this._glass.alignWallpaper(),
       this,
     );
+
+    // Follow theme switches, such as light and dark
+    St.ThemeContext.get_for_stage(global.stage).connectObject(
+      "changed",
+      () => this._applyTheme(),
+      this,
+    );
+    this._applyTheme();
+  }
+
+  // Tints the background with the theme's own colour and matches its corners
+  _applyTheme() {
+    const background = this._dash._background;
+
+    // Read the theme's values without our tint in the way
+    background.set_style(this._origStyle);
+    const node = background.get_theme_node();
+    const color = node.get_background_color();
+
+    background.set_style(
+      `background-color: rgba(${color.red}, ${color.green}, ${color.blue}, ${TINT_ALPHA});` +
+        "box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);",
+    );
+    this._glass.radius = node.get_border_radius(St.Corner.TOPLEFT);
+    this._glass.queue_relayout();
   }
 
   _teardown() {
     if (!this._glass) return;
 
     this._dockBox.disconnectObject(this);
+    St.ThemeContext.get_for_stage(global.stage).disconnectObject(this);
     this._glass.destroy();
     this._glass = null;
 
