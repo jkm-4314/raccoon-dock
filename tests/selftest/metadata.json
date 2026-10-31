@@ -1,0 +1,8 @@
+{
+    "name": "Raccoon Dock Self-Test",
+    "description": "Drives Raccoon Dock inside the throwaway shell started by tests/run.sh. Not for normal use.",
+    "uuid": "raccoon-dock-selftest@jkm-4314.github.io",
+    "shell-version": [
+        "50"
+    ]
+}
