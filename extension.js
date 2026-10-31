@@ -571,7 +571,8 @@ export default class NativeDockExtension extends Extension {
   }
 
   _onFocusWindowChangedDelayed() {
-    this._revealed = false;
+    // Keep an edge reveal across unrelated window events. It ends when the
+    // pointer leaves the dock, the reveal times out, or the workspace changes.
     this._onFocusWindowChanged();
 
     if (this._idleCheckId) GLib.source_remove(this._idleCheckId);
