@@ -1,3 +1,6 @@
+// Raccoon Dock is based on Native Dock by DEM0NAssissan7
+// (https://github.com/DEM0NAssissan7/native-dock), GPL-3.0-or-later.
+
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as Layout from "resource:///org/gnome/shell/ui/layout.js";
@@ -409,7 +412,7 @@ export default class NativeDockExtension extends Extension {
         this._pressureBarrier.addBarrier(barrier);
         this._barriers.push(barrier);
       } catch (e) {
-        console.error(`NativeDock: Failed to create barrier: ${e.message}`);
+        console.error(`Raccoon Dock: Failed to create barrier: ${e.message}`);
       }
     }
   }

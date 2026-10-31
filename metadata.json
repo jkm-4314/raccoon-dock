@@ -1,11 +1,11 @@
 {
     "name": "Raccoon Dock",
-    "description": "GNOME Shell's own Dash as an always-available dock, with a few considered options: icon size, magnification, frosted glass and auto-hide control. A fork of Native Dock by DEM0NAssissan7.",
+    "description": "GNOME Shell's own Dash as an always-available dock, with a few considered options: icon size, magnification, frosted glass, auto-hide control, monitor choice, click to minimize and a launch bounce. A fork of Native Dock by DEM0NAssissan7.",
     "uuid": "raccoon-dock@jkm-4314.github.io",
     "settings-schema": "org.gnome.shell.extensions.raccoon-dock",
     "url": "https://github.com/jkm-4314/raccoon-dock",
+    "version-name": "1.0",
     "shell-version": [
-        "50",
-        "51"
+        "50"
     ]
 }
