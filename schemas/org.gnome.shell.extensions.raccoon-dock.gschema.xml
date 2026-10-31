@@ -29,6 +29,21 @@
       <summary>Reveal pressure</summary>
       <description>How far the pointer has to push past the bottom edge, in pixels within one second, to reveal a hidden dock.</description>
     </key>
+    <key name="dock-monitor" type="s">
+      <default>''</default>
+      <summary>Dock monitor</summary>
+      <description>Connector name of the monitor to show the dock on, like "HDMI-1". Empty means the primary monitor, which is also used while the chosen one is disconnected.</description>
+    </key>
+    <key name="click-minimize" type="b">
+      <default>true</default>
+      <summary>Click to minimize</summary>
+      <description>Clicking the dock icon of the app in front minimizes its windows on the current workspace.</description>
+    </key>
+    <key name="launch-bounce" type="b">
+      <default>true</default>
+      <summary>Bounce while launching</summary>
+      <description>Bounce an app's dock icon while it starts, until its window opens.</description>
+    </key>
     <key name="magnification" type="b">
       <default>false</default>
       <summary>Magnification</summary>

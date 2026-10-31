@@ -3,6 +3,7 @@ import Graphene from "gi://Graphene";
 import St from "gi://St";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import { DashItemContainer } from "resource:///org/gnome/shell/ui/dash.js";
+import { holdUnclipped, releaseUnclipped } from "./boxClip.js";
 
 const ENTER_TIME = 120;
 const LEAVE_TIME = 200;
@@ -23,7 +24,6 @@ export class MagnificationController {
     this._pointerX = null;
     this._target = 0;
     this._dragging = false;
-    this._origBoxClip = dash._box.clip_to_allocation;
 
     // Eased between 0 (at rest) and 1 (fully magnified)
     this._strength = new St.Adjustment({
@@ -211,7 +211,7 @@ export class MagnificationController {
 
     // The icon box clips to its resting size, which would cut off icons
     // that grow upwards or get pushed past its ends
-    this._dash._box.clip_to_allocation = false;
+    holdUnclipped(this._dash._box, this);
 
     // Resting geometry, in stage coordinates
     const geometry = items.map((item) => {
@@ -269,7 +269,7 @@ export class MagnificationController {
       target.translation_x = 0;
     }
     this._dash._background.width = -1;
-    this._dash._box.clip_to_allocation = this._origBoxClip;
+    releaseUnclipped(this._dash._box, this);
   }
 
   _placeLabel(item) {
@@ -295,7 +295,7 @@ export class MagnificationController {
       return;
     }
 
-    const monitor = Main.layoutManager.primaryMonitor;
+    const monitor = Main.layoutManager.findMonitorForActor(this._dash);
     const [, dashY] = this._dash.get_transformed_position();
     const height = Math.ceil(
       (this._getMaxScale() - 1) * this._dash.iconSize * 1.25,

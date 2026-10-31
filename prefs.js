@@ -1,4 +1,5 @@
 import Adw from "gi://Adw";
+import Gdk from "gi://Gdk";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
@@ -50,6 +51,8 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     const behavior = new Adw.PreferencesGroup({
       title: "Behavior",
     });
+    behavior.add(this._createMonitorRow(settings));
+
     const autohideSwitch = new Adw.SwitchRow({
       title: "Auto-Hide",
       subtitle:
@@ -81,6 +84,30 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       Gio.SettingsBindFlags.GET,
     );
     behavior.add(pressureRow);
+
+    const clickMinimizeSwitch = new Adw.SwitchRow({
+      title: "Click to Minimize",
+      subtitle: "Clicking the app in front minimizes its windows",
+    });
+    settings.bind(
+      "click-minimize",
+      clickMinimizeSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    behavior.add(clickMinimizeSwitch);
+
+    const launchBounceSwitch = new Adw.SwitchRow({
+      title: "Bounce While Launching",
+      subtitle: "Bounce an app's icon until its window opens",
+    });
+    settings.bind(
+      "launch-bounce",
+      launchBounceSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    behavior.add(launchBounceSwitch);
     page.add(behavior);
 
     const magnification = new Adw.PreferencesGroup({
@@ -117,6 +144,45 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     page.add(magnification);
 
     window.add(page);
+  }
+
+  // Lists the connected monitors, plus the saved one if it's unplugged, so
+  // the choice survives a laptop being undocked.
+  _createMonitorRow(settings) {
+    const connectors = [""];
+    const labels = ["Primary Monitor"];
+    const monitors = Gdk.Display.get_default().get_monitors();
+    for (let i = 0; i < monitors.get_n_items(); i++) {
+      const monitor = monitors.get_item(i);
+      const connector = monitor.get_connector();
+      if (!connector) continue;
+      const name = monitor.get_description() || monitor.get_model();
+      connectors.push(connector);
+      labels.push(name ? `${name} (${connector})` : connector);
+    }
+    const saved = settings.get_string("dock-monitor");
+    if (!connectors.includes(saved)) {
+      connectors.push(saved);
+      labels.push(`${saved} (not connected)`);
+    }
+
+    const row = new Adw.ComboRow({
+      title: "Monitor",
+      subtitle: "Which screen shows the dock",
+      model: Gtk.StringList.new(labels),
+    });
+    const sync = () => {
+      const index = connectors.indexOf(settings.get_string("dock-monitor"));
+      if (index >= 0) row.selected = index;
+    };
+    sync();
+    settings.connect("changed::dock-monitor", sync);
+    row.connect("notify::selected", () => {
+      const connector = connectors[row.selected] ?? "";
+      if (connector !== settings.get_string("dock-monitor"))
+        settings.set_string("dock-monitor", connector);
+    });
+    return row;
   }
 
   // marks are values, or [value, label] pairs. Without a unit, the slider

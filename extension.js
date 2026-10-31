@@ -15,6 +15,9 @@ import { GlassController } from "./glass.js";
 import { AutohideController } from "./autohide.js";
 import { LauncherIconController } from "./launcherIcon.js";
 import { RevealPressureController } from "./revealPressure.js";
+import { MonitorChoiceController } from "./monitorChoice.js";
+import { ClickMinimizeController } from "./clickMinimize.js";
+import { LaunchBounceController } from "./launchBounce.js";
 
 const DummyDash = GObject.registerClass(
   class DummyDash extends Clutter.Actor {
@@ -48,6 +51,9 @@ export default class NativeDockExtension extends Extension {
     this._autohide = null;
     this._launcherIcon = null;
     this._revealPressure = null;
+    this._monitorChoice = null;
+    this._clickMinimize = null;
+    this._launchBounce = null;
     this._dash = null;
     this._dockBox = null;
     this._dummyDash = null;
@@ -98,6 +104,7 @@ export default class NativeDockExtension extends Extension {
     if (!controls || !dash) return;
 
     this._dash = dash;
+    this._monitorChoice = new MonitorChoiceController(this, this._settings);
     this._origParent = this._dash.get_parent();
     this._origDashIndex = this._origParent
       ? this._origParent.get_children().indexOf(this._dash)
@@ -161,6 +168,11 @@ export default class NativeDockExtension extends Extension {
     );
     this._autohide = new AutohideController(this, this._settings);
     this._revealPressure = new RevealPressureController(this, this._settings);
+    this._clickMinimize = new ClickMinimizeController(
+      this._dash,
+      this._settings,
+    );
+    this._launchBounce = new LaunchBounceController(this._dash, this._settings);
 
     this._hookWorkArea();
     try {
@@ -339,8 +351,17 @@ export default class NativeDockExtension extends Extension {
     this._onFocusWindowChangedDelayed();
   }
 
+  // The dock's monitor: the one chosen in preferences, or the primary one
+  _getMonitorIndex() {
+    return this._monitorChoice?.index ?? Main.layoutManager.primaryIndex;
+  }
+
+  _getMonitor() {
+    return Main.layoutManager.monitors[this._getMonitorIndex()] ?? null;
+  }
+
   _updatePosition() {
-    const monitor = Main.layoutManager.primaryMonitor;
+    const monitor = this._getMonitor();
     if (!monitor || !this._dash || !this._dockBox) return;
 
     const maxDashHeight = Math.round(monitor.height * 0.16);
@@ -362,7 +383,7 @@ export default class NativeDockExtension extends Extension {
   _initBarrier() {
     this._destroyBarrier();
 
-    const monitor = Main.layoutManager.primaryMonitor;
+    const monitor = this._getMonitor();
     if (!monitor) return;
 
     this._pressureBarrier = new Layout.PressureBarrier(
@@ -439,7 +460,7 @@ export default class NativeDockExtension extends Extension {
     if (
       focusWindow &&
       !focusWindow.minimized &&
-      focusWindow.is_on_primary_monitor() &&
+      focusWindow.get_monitor() === this._getMonitorIndex() &&
       focusWindow.get_window_type() !== Meta.WindowType.DESKTOP &&
       (focusWindow.located_on_workspace
         ? focusWindow.located_on_workspace(activeWorkspace)
@@ -453,7 +474,7 @@ export default class NativeDockExtension extends Extension {
     return (
       sorted.find(
         (w) =>
-          w.is_on_primary_monitor() &&
+          w.get_monitor() === this._getMonitorIndex() &&
           !w.minimized &&
           w.get_window_type() !== Meta.WindowType.DESKTOP &&
           (w.located_on_workspace
@@ -502,7 +523,7 @@ export default class NativeDockExtension extends Extension {
       parent = parent.get_transient_for?.();
     }
 
-    // Window overlapping dock on primary monitor (intellihide)
+    // Window overlapping dock on its monitor (intellihide)
     const dashRect = this._getDashRect();
     if (dashRect && this._overlapsRect(window.get_frame_rect(), dashRect))
       return true;
@@ -515,7 +536,7 @@ export default class NativeDockExtension extends Extension {
   // out from its preferred width, since a hidden dash has no allocation, and
   // the dash is always centered in the dock box.
   _getDashRect() {
-    const monitor = Main.layoutManager.primaryMonitor;
+    const monitor = this._getMonitor();
     if (!monitor || !this._dockBox || !this._dash) return null;
 
     const height = this._dockBox.height > 0 ? this._dockBox.height : 64;
@@ -845,8 +866,7 @@ export default class NativeDockExtension extends Extension {
       const origRect = extension._origGetWorkArea.call(this, monitorIndex);
       if (!origRect) return origRect;
 
-      const primary = Main.layoutManager.primaryIndex;
-      if (monitorIndex !== primary) return origRect;
+      if (monitorIndex !== extension._getMonitorIndex()) return origRect;
 
       if (!extension._isDockVisibleOnDesktop()) return origRect;
 
@@ -913,7 +933,8 @@ export default class NativeDockExtension extends Extension {
       )
         return GLib.SOURCE_REMOVE;
 
-      if (!window.is_on_primary_monitor()) return GLib.SOURCE_REMOVE;
+      if (window.get_monitor() !== this._getMonitorIndex())
+        return GLib.SOURCE_REMOVE;
 
       const frame = window.get_frame_rect();
       if (!frame || frame.width <= 0 || frame.height <= 0)
@@ -923,7 +944,7 @@ export default class NativeDockExtension extends Extension {
       if (dashRect && this._overlapsRect(frame, dashRect)) {
         const overlap = frame.y + frame.height - dashRect.y;
         const workArea = Main.layoutManager.getWorkAreaForMonitor(
-          Main.layoutManager.primaryIndex,
+          this._getMonitorIndex(),
         );
         if (frame.y - overlap >= workArea.y) {
           window.move_frame(true, frame.x, frame.y - overlap);
@@ -1015,6 +1036,10 @@ export default class NativeDockExtension extends Extension {
     }
 
     // 3. Restore real dash back to ControlsManager at its exact original index & properties
+    this._launchBounce?.destroy();
+    this._launchBounce = null;
+    this._clickMinimize?.destroy();
+    this._clickMinimize = null;
     this._revealPressure?.destroy();
     this._revealPressure = null;
     this._autohide?.destroy();
@@ -1027,6 +1052,8 @@ export default class NativeDockExtension extends Extension {
     this._launcherIcon = null;
     this._iconSize?.destroy();
     this._iconSize = null;
+    this._monitorChoice?.destroy();
+    this._monitorChoice = null;
 
     if (this._dash) {
       this._dash.disconnectObject(this);
