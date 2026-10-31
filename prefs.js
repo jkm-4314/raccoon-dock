@@ -6,6 +6,7 @@ import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/
 export default class NativeDockPreferences extends ExtensionPreferences {
   fillPreferencesWindow(window) {
     window._settings = this.getSettings();
+    const settings = window._settings;
 
     const page = new Adw.PreferencesPage({
       title: "General",
@@ -15,14 +16,53 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     const appearance = new Adw.PreferencesGroup({
       title: "Appearance",
     });
-    appearance.add(this._createIconSizeRow(window._settings));
+    appearance.add(
+      this._createSizeRow(settings, "icon-size", {
+        title: "Icon Size",
+        subtitle: "Icons shrink further if there are too many to fit",
+        marks: [32, 48, 64],
+      }),
+    );
     page.add(appearance);
+
+    const magnification = new Adw.PreferencesGroup({
+      title: "Magnification",
+    });
+    const magnificationSwitch = new Adw.SwitchRow({
+      title: "Magnify Icons",
+      subtitle: "Enlarge icons under the pointer",
+    });
+    settings.bind(
+      "magnification",
+      magnificationSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    magnification.add(magnificationSwitch);
+
+    const magnifiedSizeRow = this._createSizeRow(
+      settings,
+      "magnification-size",
+      {
+        title: "Magnified Size",
+        subtitle: "Size of the icon under the pointer",
+        marks: [64, 96, 128],
+      },
+    );
+    settings.bind(
+      "magnification",
+      magnifiedSizeRow,
+      "sensitive",
+      Gio.SettingsBindFlags.GET,
+    );
+    magnification.add(magnifiedSizeRow);
+    page.add(magnification);
 
     window.add(page);
   }
 
-  _createIconSizeRow(settings) {
-    const key = settings.settings_schema.get_key("icon-size");
+  _createSizeRow(settings, keyName, { title, subtitle, marks }) {
+    const key = settings.settings_schema.get_key(keyName);
     const [, range] = key.get_range().recursiveUnpack();
     const [min, max] = range;
 
@@ -43,21 +83,21 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       valign: Gtk.Align.CENTER,
     });
     scale.set_format_value_func((_scale, value) => `${value} px`);
-    for (const mark of [32, 48, 64]) {
+    for (const mark of marks) {
       if (mark > min && mark < max)
         scale.add_mark(mark, Gtk.PositionType.BOTTOM, null);
     }
 
     settings.bind(
-      "icon-size",
+      keyName,
       scale.adjustment,
       "value",
       Gio.SettingsBindFlags.DEFAULT,
     );
 
     const row = new Adw.ActionRow({
-      title: "Icon Size",
-      subtitle: "Icons shrink further if there are too many to fit",
+      title,
+      subtitle,
       activatable_widget: scale,
     });
     row.add_suffix(scale);
@@ -68,11 +108,11 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       valign: Gtk.Align.CENTER,
       css_classes: ["flat"],
     });
-    reset.connect("clicked", () => settings.reset("icon-size"));
+    reset.connect("clicked", () => settings.reset(keyName));
     const syncReset = () => {
-      reset.sensitive = settings.get_user_value("icon-size") !== null;
+      reset.sensitive = settings.get_user_value(keyName) !== null;
     };
-    settings.connect("changed::icon-size", syncReset);
+    settings.connect(`changed::${keyName}`, syncReset);
     syncReset();
     row.add_suffix(reset);
 

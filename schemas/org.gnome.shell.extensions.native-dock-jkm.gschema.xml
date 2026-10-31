@@ -8,5 +8,16 @@
       <summary>Icon size</summary>
       <description>Largest size of dock icons, in logical pixels. Icons shrink further when there are too many to fit.</description>
     </key>
+    <key name="magnification" type="b">
+      <default>false</default>
+      <summary>Magnification</summary>
+      <description>Enlarge icons under the pointer.</description>
+    </key>
+    <key name="magnification-size" type="i">
+      <range min="32" max="192"/>
+      <default>96</default>
+      <summary>Magnified size</summary>
+      <description>Size of the icon directly under the pointer, in logical pixels.</description>
+    </key>
   </schema>
 </schemalist>
