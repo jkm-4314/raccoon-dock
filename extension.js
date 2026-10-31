@@ -511,19 +511,21 @@ export default class NativeDockExtension extends Extension {
   }
 
   // Area the dash occupies when shown. Uses the dash's own width rather than
-  // the full-width dock box, so windows beside the dash don't count.
+  // the full-width dock box, so windows beside the dash don't count. Worked
+  // out from its preferred width, since a hidden dash has no allocation, and
+  // the dash is always centered in the dock box.
   _getDashRect() {
     const monitor = Main.layoutManager.primaryMonitor;
     if (!monitor || !this._dockBox || !this._dash) return null;
 
     const height = this._dockBox.height > 0 ? this._dockBox.height : 64;
-    const hasWidth = this._dash.width > 0;
-    const x = monitor.x + (hasWidth ? this._dash.x : 0);
+    const [, naturalWidth] = this._dash.get_preferred_width(height);
+    const width = Math.min(naturalWidth, monitor.width) || monitor.width;
 
     return {
-      x,
+      x: monitor.x + Math.floor((monitor.width - width) / 2),
       y: monitor.y + monitor.height - height,
-      width: hasWidth ? this._dash.width : monitor.width,
+      width,
       height,
     };
   }
