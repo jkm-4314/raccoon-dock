@@ -23,6 +23,12 @@
       <summary>Auto-hide</summary>
       <description>Hide the dock when a window overlaps it. Push the pointer against the bottom edge of the screen to reveal it.</description>
     </key>
+    <key name="reveal-pressure" type="i">
+      <range min="10" max="300"/>
+      <default>100</default>
+      <summary>Reveal pressure</summary>
+      <description>How far the pointer has to push past the bottom edge, in pixels within one second, to reveal a hidden dock.</description>
+    </key>
     <key name="magnification" type="b">
       <default>false</default>
       <summary>Magnification</summary>

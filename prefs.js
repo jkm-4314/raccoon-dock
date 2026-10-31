@@ -17,7 +17,7 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       title: "Appearance",
     });
     appearance.add(
-      this._createSizeRow(settings, "icon-size", {
+      this._createSliderRow(settings, "icon-size", {
         title: "Icon Size",
         subtitle: "Icons shrink further if there are too many to fit",
         marks: [32, 48, 64],
@@ -62,6 +62,25 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       Gio.SettingsBindFlags.DEFAULT,
     );
     behavior.add(autohideSwitch);
+
+    const pressureRow = this._createSliderRow(settings, "reveal-pressure", {
+      title: "Reveal Pressure",
+      subtitle:
+        "How hard to push against the bottom edge to show a hidden dock",
+      marks: [
+        [10, "Light"],
+        [100, "Default"],
+        [300, "Firm"],
+      ],
+      unit: null,
+    });
+    settings.bind(
+      "autohide",
+      pressureRow,
+      "sensitive",
+      Gio.SettingsBindFlags.GET,
+    );
+    behavior.add(pressureRow);
     page.add(behavior);
 
     const magnification = new Adw.PreferencesGroup({
@@ -79,7 +98,7 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     );
     magnification.add(magnificationSwitch);
 
-    const magnifiedSizeRow = this._createSizeRow(
+    const magnifiedSizeRow = this._createSliderRow(
       settings,
       "magnification-size",
       {
@@ -100,7 +119,9 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     window.add(page);
   }
 
-  _createSizeRow(settings, keyName, { title, subtitle, marks }) {
+  // marks are values, or [value, label] pairs. Without a unit, the slider
+  // shows only its marks, for settings where the number means little.
+  _createSliderRow(settings, keyName, { title, subtitle, marks, unit = "px" }) {
     const key = settings.settings_schema.get_key(keyName);
     const [, range] = key.get_range().recursiveUnpack();
     const [min, max] = range;
@@ -115,16 +136,18 @@ export default class NativeDockPreferences extends ExtensionPreferences {
       }),
       digits: 0,
       round_digits: 0,
-      draw_value: true,
+      draw_value: unit !== null,
       value_pos: Gtk.PositionType.RIGHT,
       hexpand: true,
       width_request: 260,
       valign: Gtk.Align.CENTER,
     });
-    scale.set_format_value_func((_scale, value) => `${value} px`);
+    if (unit !== null)
+      scale.set_format_value_func((_scale, value) => `${value} ${unit}`);
     for (const mark of marks) {
-      if (mark > min && mark < max)
-        scale.add_mark(mark, Gtk.PositionType.BOTTOM, null);
+      const [value, label] = Array.isArray(mark) ? mark : [mark, null];
+      if (value >= min && value <= max)
+        scale.add_mark(value, Gtk.PositionType.BOTTOM, label);
     }
 
     settings.bind(
