@@ -8,6 +8,11 @@
       <summary>Icon size</summary>
       <description>Largest size of dock icons, in logical pixels. Icons shrink further when there are too many to fit.</description>
     </key>
+    <key name="custom-launcher-icon" type="b">
+      <default>true</default>
+      <summary>Custom app grid icon</summary>
+      <description>Show the raccoon instead of the grid on the app grid button.</description>
+    </key>
     <key name="glass" type="b">
       <default>true</default>
       <summary>Glass background</summary>

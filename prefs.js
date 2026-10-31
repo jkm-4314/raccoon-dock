@@ -23,6 +23,17 @@ export default class NativeDockPreferences extends ExtensionPreferences {
         marks: [32, 48, 64],
       }),
     );
+    const launcherIconSwitch = new Adw.SwitchRow({
+      title: "Raccoon App Grid Icon",
+      subtitle: "Show the raccoon instead of the grid on the app grid button",
+    });
+    settings.bind(
+      "custom-launcher-icon",
+      launcherIconSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    appearance.add(launcherIconSwitch);
     const glassSwitch = new Adw.SwitchRow({
       title: "Glass Background",
       subtitle: "Translucent frosted glass over a blurred wallpaper",

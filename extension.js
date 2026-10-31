@@ -13,6 +13,7 @@ import { IconSizeController } from "./iconSize.js";
 import { MagnificationController } from "./magnification.js";
 import { GlassController } from "./glass.js";
 import { AutohideController } from "./autohide.js";
+import { LauncherIconController } from "./launcherIcon.js";
 
 const DummyDash = GObject.registerClass(
   class DummyDash extends Clutter.Actor {
@@ -44,6 +45,7 @@ export default class NativeDockExtension extends Extension {
     this._magnification = null;
     this._glass = null;
     this._autohide = null;
+    this._launcherIcon = null;
     this._dash = null;
     this._dockBox = null;
     this._dummyDash = null;
@@ -136,6 +138,11 @@ export default class NativeDockExtension extends Extension {
     this._dash.track_hover = true;
     this._dockBox.add_child(this._dash);
     this._iconSize = new IconSizeController(this._dash, this._settings);
+    this._launcherIcon = new LauncherIconController(
+      this._dash,
+      this.dir.get_child("icons").get_child("launcher.png"),
+      this._settings,
+    );
 
     // Add dock box to Chrome (above windows)
     Main.layoutManager.addTopChrome(this._dockBox, {
@@ -958,6 +965,8 @@ export default class NativeDockExtension extends Extension {
     this._glass = null;
     this._magnification?.destroy();
     this._magnification = null;
+    this._launcherIcon?.destroy();
+    this._launcherIcon = null;
     this._iconSize?.destroy();
     this._iconSize = null;
 
