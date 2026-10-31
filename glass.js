@@ -151,7 +151,7 @@ export class GlassController {
 
     // Sits right under the background, matching its box
     this._glass = new GlassActor({
-      name: "native-dock-glass",
+      name: "raccoon-dock-glass",
       clip_to_allocation: true,
     });
     this._glass.radius = node.get_border_radius(St.Corner.TOPLEFT);

@@ -37,7 +37,7 @@ export class MagnificationController {
     // Keeps the area above the dock in the input region while magnified, so
     // the top of a big icon still belongs to the dash instead of the window
     // behind it.
-    this._zone = new St.Widget({ name: "native-dock-magnification-zone" });
+    this._zone = new St.Widget({ name: "raccoon-dock-magnification-zone" });
     Main.layoutManager.addTopChrome(this._zone);
 
     dash.connectObject(
@@ -129,8 +129,8 @@ export class MagnificationController {
   // Lets stylesheet.css drop the tiles behind icons while magnifying
   _syncStyle() {
     if (this._settings.get_boolean("magnification"))
-      this._dash.add_style_class_name("native-dock-magnify");
-    else this._dash.remove_style_class_name("native-dock-magnify");
+      this._dash.add_style_class_name("raccoon-dock-magnify");
+    else this._dash.remove_style_class_name("raccoon-dock-magnify");
   }
 
   _updateSharpIcons() {
@@ -323,7 +323,7 @@ export class MagnificationController {
       icon.update();
     }
     this._sharpIcons.clear();
-    this._dash.remove_style_class_name("native-dock-magnify");
+    this._dash.remove_style_class_name("raccoon-dock-magnify");
 
     Main.layoutManager.removeChrome(this._zone);
     this._zone.destroy();

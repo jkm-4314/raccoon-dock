@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.gnome.shell.extensions.native-dock-jkm"
-          path="/org/gnome/shell/extensions/native-dock-jkm/">
+  <schema id="org.gnome.shell.extensions.raccoon-dock"
+          path="/org/gnome/shell/extensions/raccoon-dock/">
     <key name="icon-size" type="i">
       <range min="16" max="96"/>
       <default>64</default>

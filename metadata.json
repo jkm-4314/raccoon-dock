@@ -1,8 +1,8 @@
 {
-    "name": "Native Dock (jkm)",
-    "description": "Makes the native GNOME Shell Dash always visible as a dock, with a few considered options. A fork of Native Dock by DEM0NAssissan7.",
-    "uuid": "native-dock@jkm-4314.github.io",
-    "settings-schema": "org.gnome.shell.extensions.native-dock-jkm",
+    "name": "Raccoon Dock",
+    "description": "GNOME Shell's own Dash as an always-available dock, with a few considered options: icon size, magnification, frosted glass and auto-hide control. A fork of Native Dock by DEM0NAssissan7.",
+    "uuid": "raccoon-dock@jkm-4314.github.io",
+    "settings-schema": "org.gnome.shell.extensions.raccoon-dock",
     "url": "https://github.com/jkm-4314/native-dock",
     "shell-version": [
         "50",

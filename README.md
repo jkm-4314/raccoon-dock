@@ -1,6 +1,6 @@
-# Native Dock (jkm)
+# Raccoon Dock
 
-> This is a personal fork of [Native Dock](https://github.com/DEM0NAssissan7/native-dock) by DEM0NAssissan7 that adds a few carefully chosen options. Fixes that suit the original are contributed back upstream. For the original, zero-configuration experience, use the upstream extension.
+> Raccoon Dock is a personal fork of [Native Dock](https://github.com/DEM0NAssissan7/native-dock) by DEM0NAssissan7, named after Ubuntu 26.04 "Resolute Raccoon", the release it was built on. It adds a few carefully chosen options: icon size, macOS-style magnification, a frosted glass background, a raccoon app grid icon, and control over auto-hide and reveal pressure. Fixes that suit the original are contributed back upstream. For the original, zero-configuration experience, use the upstream extension.
 
 > What if GNOME Shell had an on-screen dock, designed as a first-party upstream feature?
 
@@ -32,19 +32,19 @@ Instead of reconstructing a dock from scratch or bundling third-party widget sta
 
 1. Clone or copy the repository into your GNOME Shell extensions directory:
    ```bash
-   git clone -b jkm https://github.com/jkm-4314/native-dock.git ~/.local/share/gnome-shell/extensions/native-dock@jkm-4314.github.io
+   git clone -b jkm https://github.com/jkm-4314/native-dock.git ~/.local/share/gnome-shell/extensions/raccoon-dock@jkm-4314.github.io
    ```
 
 2. Compile the settings schema:
    ```bash
-   glib-compile-schemas ~/.local/share/gnome-shell/extensions/native-dock@jkm-4314.github.io/schemas/
+   glib-compile-schemas ~/.local/share/gnome-shell/extensions/raccoon-dock@jkm-4314.github.io/schemas/
    ```
 
 3. Log out and log back in (required on Wayland so GNOME Shell discovers the new extension).
 
 4. Enable the extension:
    ```bash
-   gnome-extensions enable native-dock@jkm-4314.github.io
+   gnome-extensions enable raccoon-dock@jkm-4314.github.io
    ```
 
 ---
