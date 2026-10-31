@@ -503,21 +503,38 @@ export default class NativeDockExtension extends Extension {
     }
 
     // Window overlapping dock on primary monitor (intellihide)
-    const monitor = Main.layoutManager.primaryMonitor;
-    if (monitor && this._dockBox) {
-      const frame = window.get_frame_rect();
-      const dockHeight = this._dockBox.height > 0 ? this._dockBox.height : 64;
-      const dockTop = monitor.y + monitor.height - dockHeight;
-      if (
-        frame.y + frame.height > dockTop &&
-        frame.x < monitor.x + monitor.width &&
-        frame.x + frame.width > monitor.x
-      ) {
-        return true;
-      }
-    }
+    const dashRect = this._getDashRect();
+    if (dashRect && this._overlapsRect(window.get_frame_rect(), dashRect))
+      return true;
 
     return false;
+  }
+
+  // Area the dash occupies when shown. Uses the dash's own width rather than
+  // the full-width dock box, so windows beside the dash don't count.
+  _getDashRect() {
+    const monitor = Main.layoutManager.primaryMonitor;
+    if (!monitor || !this._dockBox || !this._dash) return null;
+
+    const height = this._dockBox.height > 0 ? this._dockBox.height : 64;
+    const hasWidth = this._dash.width > 0;
+    const x = monitor.x + (hasWidth ? this._dash.x : 0);
+
+    return {
+      x,
+      y: monitor.y + monitor.height - height,
+      width: hasWidth ? this._dash.width : monitor.width,
+      height,
+    };
+  }
+
+  _overlapsRect(frame, rect) {
+    return (
+      frame.x < rect.x + rect.width &&
+      frame.x + frame.width > rect.x &&
+      frame.y < rect.y + rect.height &&
+      frame.y + frame.height > rect.y
+    );
   }
 
   _onFocusWindowChanged() {
@@ -894,16 +911,9 @@ export default class NativeDockExtension extends Extension {
       if (!frame || frame.width <= 0 || frame.height <= 0)
         return GLib.SOURCE_REMOVE;
 
-      const dockHeight =
-        this._dockBox.height > 0 ? this._dockBox.height : 64;
-      const dockTop = monitor.y + monitor.height - dockHeight;
-
-      if (
-        frame.y + frame.height > dockTop &&
-        frame.x < monitor.x + monitor.width &&
-        frame.x + frame.width > monitor.x
-      ) {
-        const overlap = frame.y + frame.height - dockTop;
+      const dashRect = this._getDashRect();
+      if (dashRect && this._overlapsRect(frame, dashRect)) {
+        const overlap = frame.y + frame.height - dashRect.y;
         const panelTop = monitor.y + 32;
         if (frame.y - overlap >= panelTop) {
           window.move_frame(true, frame.x, frame.y - overlap);
