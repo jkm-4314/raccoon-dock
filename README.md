@@ -39,9 +39,9 @@ It's named after Ubuntu 26.04 "Resolute Raccoon", the release it was born on.
 
 ## Installation
 
-1. Clone the `jkm` branch into your extensions folder:
+1. Clone the repository into your extensions folder:
    ```bash
-   git clone -b jkm https://github.com/jkm-4314/native-dock.git \
+   git clone https://github.com/jkm-4314/raccoon-dock.git \
      ~/.local/share/gnome-shell/extensions/raccoon-dock@jkm-4314.github.io
    ```
 2. Compile the settings schema:
@@ -67,7 +67,7 @@ GNOME Shell 50 or 51 on Wayland. Developed and tested on Ubuntu 26.04 with GNOME
 ## Credits
 
 Raccoon Dock was inspired by [Native Dock](https://github.com/DEM0NAssissan7/native-dock)
-by DEM0NAssissan7, and started as a fork of it. Native Dock does the hard work of
+by DEM0NAssissan7, and started as a fork of it, so its history includes Native Dock's. Native Dock does the hard work of
 turning the Dash into a dock. If you'd rather have the original zero-configuration
 experience, use Native Dock. Fixes that suit the original are contributed back upstream.
 
