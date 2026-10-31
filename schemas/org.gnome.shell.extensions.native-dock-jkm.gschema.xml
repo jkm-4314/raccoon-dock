@@ -8,6 +8,11 @@
       <summary>Icon size</summary>
       <description>Largest size of dock icons, in logical pixels. Icons shrink further when there are too many to fit.</description>
     </key>
+    <key name="glass" type="b">
+      <default>true</default>
+      <summary>Glass background</summary>
+      <description>Show the dock background as translucent frosted glass over a blurred wallpaper.</description>
+    </key>
     <key name="magnification" type="b">
       <default>false</default>
       <summary>Magnification</summary>

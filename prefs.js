@@ -23,6 +23,17 @@ export default class NativeDockPreferences extends ExtensionPreferences {
         marks: [32, 48, 64],
       }),
     );
+    const glassSwitch = new Adw.SwitchRow({
+      title: "Glass Background",
+      subtitle: "Translucent frosted glass over a blurred wallpaper",
+    });
+    settings.bind(
+      "glass",
+      glassSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    appearance.add(glassSwitch);
     page.add(appearance);
 
     const magnification = new Adw.PreferencesGroup({
