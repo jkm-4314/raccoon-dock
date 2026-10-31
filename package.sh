@@ -4,7 +4,7 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-gnome-extensions pack --force --extra-source=iconSize.js --extra-source=magnification.js --extra-source=glass.js --extra-source=autohide.js --extra-source=launcherIcon.js --extra-source=revealPressure.js --extra-source=icons .
+gnome-extensions pack --force --extra-source=iconSize.js --extra-source=magnification.js --extra-source=glass.js --extra-source=autohide.js --extra-source=launcherIcon.js --extra-source=revealPressure.js --extra-source=icons --extra-source=LICENSE .
 
 cp -f "raccoon-dock@jkm-4314.github.io.shell-extension.zip" "raccoon-dock@jkm-4314.github.io.zip"
 
