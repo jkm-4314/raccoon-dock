@@ -268,7 +268,7 @@ export default class NativeDockExtension extends Extension {
         () => {
           if (
             Main.overview.visible ||
-            Main.overview._animationInProgress ||
+            Main.overview.animationInProgress ||
             controls._stateAdjustment.gestureInProgress
           ) {
             const progress = Math.clamp(controls._stateAdjustment.value, 0, 1);
@@ -603,7 +603,7 @@ export default class NativeDockExtension extends Extension {
   }
 
   _onPressureTrigger() {
-    if (Main.overview.visible || Main.overview._animationInProgress) return;
+    if (Main.overview.visible || Main.overview.animationInProgress) return;
 
     if (!this._shouldHideForFocusedWindow()) return;
 
@@ -692,7 +692,7 @@ export default class NativeDockExtension extends Extension {
   }
 
   _updateVisibility(immediate = false) {
-    if (Main.overview.visible || Main.overview._animationInProgress) return;
+    if (Main.overview.visible || Main.overview.animationInProgress) return;
 
     const shouldHide = this._shouldHideForFocusedWindow();
 
@@ -718,7 +718,7 @@ export default class NativeDockExtension extends Extension {
     this._stateTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 120, () => {
       this._stateTimeoutId = 0;
 
-      if (Main.overview.visible || Main.overview._animationInProgress)
+      if (Main.overview.visible || Main.overview.animationInProgress)
         return GLib.SOURCE_REMOVE;
 
       const targetHide = this._shouldHideForFocusedWindow();
@@ -741,7 +741,7 @@ export default class NativeDockExtension extends Extension {
       !this._dockBox ||
       !this._dash ||
       Main.overview.visible ||
-      Main.overview._animationInProgress
+      Main.overview.animationInProgress
     )
       return;
 
@@ -759,7 +759,7 @@ export default class NativeDockExtension extends Extension {
       !this._dockBox ||
       !this._dash ||
       Main.overview.visible ||
-      Main.overview._animationInProgress
+      Main.overview.animationInProgress
     )
       return;
 
@@ -800,7 +800,7 @@ export default class NativeDockExtension extends Extension {
       const controls = Main.overview._overview?._controls;
       if (
         Main.overview.visible ||
-        Main.overview._animationInProgress ||
+        Main.overview.animationInProgress ||
         controls?._stateAdjustment?.gestureInProgress
       ) {
         return origRect;
