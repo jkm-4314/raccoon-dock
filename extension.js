@@ -9,6 +9,7 @@ import Mtk from "gi://Mtk";
 import Shell from "gi://Shell";
 import St from "gi://St";
 import { DashItemContainer } from "resource:///org/gnome/shell/ui/dash.js";
+import { IconSizeController } from "./iconSize.js";
 
 const DummyDash = GObject.registerClass(
   class DummyDash extends Clutter.Actor {
@@ -35,6 +36,8 @@ const DummyDash = GObject.registerClass(
 
 export default class NativeDockExtension extends Extension {
   enable() {
+    this._settings = this.getSettings();
+    this._iconSize = null;
     this._dash = null;
     this._dockBox = null;
     this._dummyDash = null;
@@ -126,6 +129,7 @@ export default class NativeDockExtension extends Extension {
     this._dash.reactive = true;
     this._dash.track_hover = true;
     this._dockBox.add_child(this._dash);
+    this._iconSize = new IconSizeController(this._dash, this._settings);
 
     // Add dock box to Chrome (above windows)
     Main.layoutManager.addTopChrome(this._dockBox, {
@@ -932,6 +936,9 @@ export default class NativeDockExtension extends Extension {
     }
 
     // 3. Restore real dash back to ControlsManager at its exact original index & properties
+    this._iconSize?.destroy();
+    this._iconSize = null;
+
     if (this._dash) {
       this._dash.disconnectObject(this);
 
@@ -1002,5 +1009,7 @@ export default class NativeDockExtension extends Extension {
     } catch {
       // Ignore
     }
+
+    this._settings = null;
   }
 }

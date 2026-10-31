@@ -2,5 +2,11 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.native-dock-jkm"
           path="/org/gnome/shell/extensions/native-dock-jkm/">
+    <key name="icon-size" type="i">
+      <range min="16" max="96"/>
+      <default>64</default>
+      <summary>Icon size</summary>
+      <description>Largest size of dock icons, in logical pixels. Icons shrink further when there are too many to fit.</description>
+    </key>
   </schema>
 </schemalist>
