@@ -12,6 +12,7 @@ import { DashItemContainer } from "resource:///org/gnome/shell/ui/dash.js";
 import { IconSizeController } from "./iconSize.js";
 import { MagnificationController } from "./magnification.js";
 import { GlassController } from "./glass.js";
+import { AutohideController } from "./autohide.js";
 
 const DummyDash = GObject.registerClass(
   class DummyDash extends Clutter.Actor {
@@ -42,6 +43,7 @@ export default class NativeDockExtension extends Extension {
     this._iconSize = null;
     this._magnification = null;
     this._glass = null;
+    this._autohide = null;
     this._dash = null;
     this._dockBox = null;
     this._dummyDash = null;
@@ -148,6 +150,7 @@ export default class NativeDockExtension extends Extension {
       this._dockBox,
       this._settings,
     );
+    this._autohide = new AutohideController(this, this._settings);
 
     this._hookWorkArea();
     try {
@@ -949,6 +952,8 @@ export default class NativeDockExtension extends Extension {
     }
 
     // 3. Restore real dash back to ControlsManager at its exact original index & properties
+    this._autohide?.destroy();
+    this._autohide = null;
     this._glass?.destroy();
     this._glass = null;
     this._magnification?.destroy();

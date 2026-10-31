@@ -13,6 +13,11 @@
       <summary>Glass background</summary>
       <description>Show the dock background as translucent frosted glass over a blurred wallpaper.</description>
     </key>
+    <key name="autohide" type="b">
+      <default>true</default>
+      <summary>Auto-hide</summary>
+      <description>Hide the dock when a window overlaps it. Push the pointer against the bottom edge of the screen to reveal it.</description>
+    </key>
     <key name="magnification" type="b">
       <default>false</default>
       <summary>Magnification</summary>

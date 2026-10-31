@@ -4,7 +4,7 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-gnome-extensions pack --force --extra-source=iconSize.js --extra-source=magnification.js --extra-source=glass.js .
+gnome-extensions pack --force --extra-source=iconSize.js --extra-source=magnification.js --extra-source=glass.js --extra-source=autohide.js .
 
 cp -f "native-dock@jkm-4314.github.io.shell-extension.zip" "native-dock@jkm-4314.github.io.zip"
 

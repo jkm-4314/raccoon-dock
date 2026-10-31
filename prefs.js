@@ -36,6 +36,23 @@ export default class NativeDockPreferences extends ExtensionPreferences {
     appearance.add(glassSwitch);
     page.add(appearance);
 
+    const behavior = new Adw.PreferencesGroup({
+      title: "Behavior",
+    });
+    const autohideSwitch = new Adw.SwitchRow({
+      title: "Auto-Hide",
+      subtitle:
+        "Hide the dock when a window overlaps it. Push the pointer against the bottom edge to reveal it.",
+    });
+    settings.bind(
+      "autohide",
+      autohideSwitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT,
+    );
+    behavior.add(autohideSwitch);
+    page.add(behavior);
+
     const magnification = new Adw.PreferencesGroup({
       title: "Magnification",
     });
