@@ -11,10 +11,6 @@ const LEAVE_TIME = 200;
 // How far the effect reaches on each side of the pointer, in item widths
 const SPREAD = 2.5;
 
-// How much closer two fully magnified neighbours sit than plain scaling would
-// put them, in pixels. Partly magnified icons are pulled in proportionally.
-const MAGNIFIED_GAP_TRIM = 5;
-
 // macOS-style magnification. Icons are scaled and pushed apart with transforms
 // only, so the dash never relayouts while the pointer moves over it.
 export class MagnificationController {
@@ -207,7 +203,6 @@ export class MagnificationController {
 
     const p = this._pointerX;
     const maxScale = Math.max(1, this._getMaxScale());
-    const trim = maxScale > 1 ? MAGNIFIED_GAP_TRIM / (maxScale - 1) : 0;
 
     // The icon box clips to its resting size, which would cut off icons
     // that grow upwards or get pushed past its ends
@@ -221,13 +216,14 @@ export class MagnificationController {
     const reach = SPREAD * (geometry[0]?.width || 1);
 
     // Each icon's scale falls off smoothly with distance from the pointer.
-    // "extra" is how much wider it gets.
+    // "extra" is how much wider it gets. Only the icon itself counts, not the
+    // padding around it, so magnified icons keep their resting gaps.
     let total = 0;
     for (const g of geometry) {
       const distance = Math.abs(p - (g.x + g.width / 2)) / reach;
       const falloff = distance < 1 ? (Math.cos(Math.PI * distance) + 1) / 2 : 0;
       g.scale = g.item.child ? 1 + (maxScale - 1) * falloff * strength : 1;
-      g.extra = (g.width - trim) * (g.scale - 1);
+      g.extra = this._dash.iconSize * (g.scale - 1);
       total += g.extra;
     }
 
